@@ -1,0 +1,3 @@
+[submodule "YoutubeOrganizer.Model"]
+	path = YoutubeOrganizer.Model
+	url = https://github.com/mreaux/YoutubeOrganizer.Model
