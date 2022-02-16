@@ -34,19 +34,26 @@ public class VideosController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<VideoDto>> GetVideo(Guid id)
     {
-        var vid = await _repo.GetVideoAsync(id);
-        if (vid == null)
+        try
         {
-            _logger.LogInformation("GetVideo Guid: {guid} Video not found.", id);
-        }
-        else
-        {
-            _logger.LogInformation("GetVideo Guid: {guid} Video Id: {vidId}", id, vid.YoutubeId);
-        }
+            var vid = await _repo.GetVideoAsync(id);
+            if (vid == null)
+            {
+                _logger.LogInformation("GetVideo Guid: {guid} Video not found.", id);
+            }
+            else
+            {
+                _logger.LogInformation("GetVideo Guid: {guid} Video Id: {vidId}", id, vid.YoutubeId);
+            }
 
-        return (vid is null) ?
-            NotFound() :
-            Ok(_mapper.Map<VideoDto>(vid));
+            return (vid is null) ?
+                NotFound() :
+                Ok(_mapper.Map<VideoDto>(vid));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
     }
 
     [HttpPost]
