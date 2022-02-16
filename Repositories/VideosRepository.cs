@@ -19,16 +19,25 @@ public class VideosRepository : IVideosRepository
     private readonly ILogger<VideosRepository> _logger;
     public VideosRepository(IMongoClient mongoClient, IHttpClientFactory httpClientFactory, ILogger<VideosRepository> logger)
     {
+        _logger = logger;
         IMongoDatabase db = mongoClient.GetDatabase(databaseName);
+        _logger.LogInformation("Connected to Mongo");
         _videosCollection = db.GetCollection<Video>(collectionName);
         _httpClientFactory = httpClientFactory;
-        _logger = logger;
     }
 
     public async Task<IEnumerable<Video>> GetAllVideosAsync()
     {
-        var videos = await _videosCollection.FindAsync<Video>(new BsonDocument());
-        return videos?.ToList();
+        try
+        {
+            var videos = await _videosCollection.FindAsync<Video>(new BsonDocument());
+            return videos?.ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message, ex);
+            throw;
+        }
     }
 
     public async Task<Video> GetVideoAsync(Guid id)

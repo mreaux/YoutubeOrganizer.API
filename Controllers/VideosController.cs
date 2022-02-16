@@ -93,6 +93,7 @@ public class VideosController : ControllerBase
     {
         try
         {
+            _logger.LogInformation("Guid {x}", id);
             await _repo.UpdateVideoAsync(id, videoDto);
         }
         catch (ArgumentException ex)
