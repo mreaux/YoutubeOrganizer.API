@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YoutubeOrganizer.API", "You
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YouTubeOrganizerTests", "..\YouTubeOrganizerTests\YouTubeOrganizerTests.csproj", "{796DE800-D036-4A90-A225-D05A6B29A122}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YoutubeOrganizer.Model", "..\YoutubeOrganizer.Model\YoutubeOrganizer.Model.csproj", "{06147D8B-ACE3-4D36-9B91-CDA5890A3AFF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{796DE800-D036-4A90-A225-D05A6B29A122}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{796DE800-D036-4A90-A225-D05A6B29A122}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{796DE800-D036-4A90-A225-D05A6B29A122}.Release|Any CPU.Build.0 = Release|Any CPU
-		{06147D8B-ACE3-4D36-9B91-CDA5890A3AFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{06147D8B-ACE3-4D36-9B91-CDA5890A3AFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{06147D8B-ACE3-4D36-9B91-CDA5890A3AFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{06147D8B-ACE3-4D36-9B91-CDA5890A3AFF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
