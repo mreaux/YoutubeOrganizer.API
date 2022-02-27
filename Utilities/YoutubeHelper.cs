@@ -9,7 +9,7 @@ public static class YoutubeHelper
 {
     private const string _apiPath = @"https://www.googleapis.com/youtube/v3/videos?part=snippet";
     private const string _baseVideoUrl = @"https://www.youtube.com/watch?v=";
-    private const string _shortenedUrl = @"https://youtu.be/";
+//    private const string _shortenedUrl = @"https://youtu.be/";
     private const string _fields = 
         @"&fields=items(id,snippet(title, channelId, publishedAt, channelTitle, thumbnails(default,medium)))";
 
@@ -27,12 +27,11 @@ public static class YoutubeHelper
 
     public static bool IsValidYoutubeUrl(string videoUrl)
     {
-        Uri uriResult;
         return
             (videoUrl is not null) &&
-            (Uri.TryCreate(videoUrl, UriKind.Absolute, out uriResult) &&
-            (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps)) &&
-            ((IsNormalUrl(videoUrl) || IsShortenedUrl(videoUrl)));
+            Uri.TryCreate(videoUrl, UriKind.Absolute, out Uri uriResult) &&
+            (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps) &&
+            (IsNormalUrl(videoUrl) || IsShortenedUrl(videoUrl));
     }
 
     public static string? GetYoutubeVideoId(string videoUrl)
@@ -56,7 +55,7 @@ public static class YoutubeHelper
         var videoId = GetYoutubeVideoId(videoUrl);
 
         var reformedUrl = $"{_baseVideoUrl}{videoId}";
-        logger.LogInformation(reformedUrl);
+        logger.LogInformation("Reformed Url = {reformedUrl}", reformedUrl);
         var youtubeData = await GetDataFromYoutube(videoId, httpClientFactory, logger);
         return (YoutubeResponse: youtubeData, ReformedUrl: reformedUrl);
     }
@@ -68,26 +67,11 @@ public static class YoutubeHelper
             Method = HttpMethod.Get,
             RequestUri = new Uri($"{_apiPath}&id={youtubeId}&key={_apiKey}{_fields}")
         };
-        logger.LogInformation(httpRequestMessage.RequestUri.ToString());
+        logger.LogInformation("{RequestUri}", httpRequestMessage.RequestUri.ToString());
 
         var httpClient = httpClientFactory.CreateClient();
         LaunchDto? youtubeDto = await httpClient.GetFromJsonAsync<LaunchDto>(httpRequestMessage.RequestUri, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         return youtubeDto;
-        /* *******  Working
-                var httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
-                if (httpResponseMessage.IsSuccessStatusCode)
-                {
-                    string apiResponse = await httpResponseMessage.Content.ReadAsStringAsync();
-                    using (JsonDocument document = JsonDocument.Parse(apiResponse))
-                    {
-                        JsonElement root = document.RootElement;
-                        JsonElement itemsElement = root.GetProperty("items");
-                        var x = itemsElement[0].GetProperty("snippet").GetProperty("title");
-                        response = x.ToString();
-                    }
-                }
-                return response;
-        *******/
     }
 
 

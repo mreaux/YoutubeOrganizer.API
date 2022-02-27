@@ -35,7 +35,7 @@ public class VideosRepository : IVideosRepository
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message, ex);
+            _logger.LogError(ex, "Exception: {Message}", ex.Message);
             throw;
         }
     }
@@ -51,11 +51,11 @@ public class VideosRepository : IVideosRepository
         if (!YoutubeHelper.IsValidYoutubeUrl(dto.VideoUrl))
             throw new ArgumentException($"{dto.VideoUrl} is not a YouTube video.");
 
-        var youtubeResults = await YoutubeHelper.GetValuesFromYoutube(dto.VideoUrl, _httpClientFactory, _logger);
+        var (YoutubeResponse, ReformedUrl) = await YoutubeHelper.GetValuesFromYoutube(dto.VideoUrl, _httpClientFactory, _logger);
 
-        if ((await _videosCollection.FindAsync(x => x.YoutubeId == youtubeResults.YoutubeResponse.Items[0].Id))
+        if ((await _videosCollection.FindAsync(x => x.YoutubeId == YoutubeResponse.Items[0].Id))
             .ToList().Any())
-        {            
+        {
             throw new ArgumentException("Video already exists");
         }
 
@@ -65,20 +65,20 @@ public class VideosRepository : IVideosRepository
             CreatedDate = DateTimeOffset.UtcNow,
             Category = dto.Category,
             Tags = dto.Tags,
-            YoutubeId = youtubeResults.YoutubeResponse.Items[0].Id,
-            Title = youtubeResults.YoutubeResponse.Items[0].Snippet.Title,
-            ChannelName = youtubeResults.YoutubeResponse.Items[0].Snippet.ChannelTitle,
-            ChannelId = youtubeResults.YoutubeResponse.Items[0].Snippet.ChannelId,
-            PostedDate = youtubeResults.YoutubeResponse.Items[0].Snippet.PublishedAt,
-            SmallThumbnailHeight = youtubeResults.YoutubeResponse.Items[0].Snippet.Thumbnails.Default.Height,
-            SmallThumbnailWidth = youtubeResults.YoutubeResponse.Items[0].Snippet.Thumbnails.Default.Width,
-            SmallThumbnailUrl = youtubeResults.YoutubeResponse.Items[0].Snippet.Thumbnails.Default.Url,
+            YoutubeId = YoutubeResponse.Items[0].Id,
+            Title = YoutubeResponse.Items[0].Snippet.Title,
+            ChannelName = YoutubeResponse.Items[0].Snippet.ChannelTitle,
+            ChannelId = YoutubeResponse.Items[0].Snippet.ChannelId,
+            PostedDate = YoutubeResponse.Items[0].Snippet.PublishedAt,
+            SmallThumbnailHeight = YoutubeResponse.Items[0].Snippet.Thumbnails.Default.Height,
+            SmallThumbnailWidth = YoutubeResponse.Items[0].Snippet.Thumbnails.Default.Width,
+            SmallThumbnailUrl = YoutubeResponse.Items[0].Snippet.Thumbnails.Default.Url,
 
-            ThumbnailHeight = youtubeResults.YoutubeResponse.Items[0].Snippet.Thumbnails.Medium.Height,
-            ThumbnailWidth = youtubeResults.YoutubeResponse.Items[0].Snippet.Thumbnails.Medium.Width,
-            ThumbnailUrl = youtubeResults.YoutubeResponse.Items[0].Snippet.Thumbnails.Medium.Url,
+            ThumbnailHeight = YoutubeResponse.Items[0].Snippet.Thumbnails.Medium.Height,
+            ThumbnailWidth = YoutubeResponse.Items[0].Snippet.Thumbnails.Medium.Width,
+            ThumbnailUrl = YoutubeResponse.Items[0].Snippet.Thumbnails.Medium.Url,
 
-//            VideoUrl = youtubeResults.ReformedUrl
+            //            VideoUrl = youtubeResults.ReformedUrl
         };
         await _videosCollection.InsertOneAsync(vid);
         return vid;
@@ -121,7 +121,7 @@ public class VideosRepository : IVideosRepository
         }
     }
 
-    private void AddData(IList<CreateVideoDto> dtoList)
+    private static void AddData(IList<CreateVideoDto> dtoList)
     {
         dtoList.Add(
             new CreateVideoDto
@@ -151,61 +151,111 @@ public class VideosRepository : IVideosRepository
             new CreateVideoDto
             {
                 Category = (int)VideoCategory.Development,
-                VideoUrl = "https://www.youtube.com/watch?v=_Hp_dI0DzY4&list=WL&index=1&t=2404s"
+                VideoUrl = "https://www.youtube.com/watch?v=_Hp_dI0DzY4&list=WL&index=1&t=2404s",
+                Tags = new string[]
+                {
+                    "ui"
+                }
             });
         dtoList.Add(
             new CreateVideoDto
             {
                 Category = (int)VideoCategory.Development,
-                VideoUrl = "https://www.youtube.com/watch?v=au7066pUA9M&list=WL&index=2&t=38s"
+                VideoUrl = "https://www.youtube.com/watch?v=au7066pUA9M&list=WL&index=2&t=38s",
+                Tags = new string[]
+                {
+                    "ui"
+                }
             });
         dtoList.Add(
             new CreateVideoDto
             {
                 Category = (int)VideoCategory.Development,
-                VideoUrl = "https://www.youtube.com/watch?v=0yQxb0fCRGE&list=WL&index=3"
+                VideoUrl = "https://www.youtube.com/watch?v=0yQxb0fCRGE&list=WL&index=3",
+                Tags = new string[]
+                {
+                    "ui"
+                }
             });
         dtoList.Add(
             new CreateVideoDto
             {
                 Category = (int)VideoCategory.Development,
-                VideoUrl = "https://www.youtube.com/watch?v=y_MTsIQuNEo&list=WL&index=4"
+                VideoUrl = "https://www.youtube.com/watch?v=y_MTsIQuNEo&list=WL&index=4",
+                Tags = new string[]
+                {
+                    "ui"
+                }
             });
         dtoList.Add(
             new CreateVideoDto
             {
                 Category = (int)VideoCategory.Development,
-                VideoUrl = "https://www.youtube.com/watch?v=5wtnKulcquA&list=WL&index=8"
+                VideoUrl = "https://www.youtube.com/watch?v=FJDVKeh7RJI&list=PLZHoZjt2GMjyjzeK6PBmz2RLlug5f4mI0&index=27",
+                Tags = new string[]
+                {
+                    "typescript", "react"
+                }
             });
         dtoList.Add(
             new CreateVideoDto
             {
                 Category = (int)VideoCategory.Development,
-                VideoUrl = "https://www.youtube.com/watch?v=RGtDqHK8XGo&list=WL&index=10"
+                VideoUrl = "https://www.youtube.com/watch?v=5wtnKulcquA&list=WL&index=8",
+                Tags = new string[]
+                {
+                    "angular"
+                }
             });
         dtoList.Add(
             new CreateVideoDto
             {
                 Category = (int)VideoCategory.Development,
-                VideoUrl = "https://www.youtube.com/watch?v=yibJDhrVlYk&list=WL&index=11&t=163s"
+                VideoUrl = "https://www.youtube.com/watch?v=RGtDqHK8XGo&list=WL&index=10",
+                Tags = new string[]
+                {
+                    "ui", "color"
+                }
             });
         dtoList.Add(
             new CreateVideoDto
             {
                 Category = (int)VideoCategory.Development,
-                VideoUrl = "https://www.youtube.com/watch?v=roywYSEPSvc&list=WL&index=12"
+                VideoUrl = "https://www.youtube.com/watch?v=yibJDhrVlYk&list=WL&index=11&t=163s",
+                Tags = new string[]
+                {
+                    "ui", "color"
+                }
             });
         dtoList.Add(
             new CreateVideoDto
             {
                 Category = (int)VideoCategory.Development,
-                VideoUrl = "https://www.youtube.com/watch?v=olE86OdKYQs&list=WL&index=13"
+                VideoUrl = "https://www.youtube.com/watch?v=roywYSEPSvc&list=WL&index=12",
+                Tags = new string[]
+                {
+                    "ui", "sass"
+                }
             });
         dtoList.Add(
             new CreateVideoDto
             {
                 Category = (int)VideoCategory.Development,
-                VideoUrl = "https://www.youtube.com/watch?v=kDumlq8bL7Y&list=WL&index=16"
+                VideoUrl = "https://www.youtube.com/watch?v=olE86OdKYQs&list=WL&index=13",
+                Tags = new string[]
+                {
+                    "ui", "css"
+                }
+            });
+        dtoList.Add(
+            new CreateVideoDto
+            {
+                Category = (int)VideoCategory.Development,
+                VideoUrl = "https://www.youtube.com/watch?v=kDumlq8bL7Y&list=WL&index=16",
+                Tags = new string[]
+                {
+                    "ui","css","flex"
+                }
             });
         dtoList.Add(
             new CreateVideoDto
@@ -217,26 +267,42 @@ public class VideosRepository : IVideosRepository
             new CreateVideoDto
             {
                 Category = (int)VideoCategory.Development,
-                VideoUrl = "https://www.youtube.com/watch?v=aUbXGs7YTGo&list=WL&index=19"
+                VideoUrl = "https://www.youtube.com/watch?v=aUbXGs7YTGo&list=WL&index=19",
+                Tags = new string[]
+                {
+                    "c#"
+                }
             });
 
         dtoList.Add(
             new CreateVideoDto
             {
                 Category = (int)VideoCategory.Development,
-                VideoUrl = "https://www.youtube.com/watch?v=qkJ9keBmQWo&list=WL&index=22&t=4s"
+                VideoUrl = "https://www.youtube.com/watch?v=qkJ9keBmQWo&list=WL&index=22&t=4s",
+                Tags = new string[]
+                {
+                    "c#","entityFramework"
+                }
             });
         dtoList.Add(
             new CreateVideoDto
             {
                 Category = (int)VideoCategory.Gaming,
-                VideoUrl = "https://www.youtube.com/watch?v=HOehtx-dAOU&list=WL&index=26"
+                VideoUrl = "https://www.youtube.com/watch?v=HOehtx-dAOU&list=WL&index=26",
+                Tags = new string[]
+                {
+                    "rimworld"
+                }
             });
         dtoList.Add(
             new CreateVideoDto
             {
                 Category = (int)VideoCategory.Gaming,
-                VideoUrl = "https://www.youtube.com/watch?v=vY5N7Rbcjrc&list=WL&index=29&t=148s"
+                VideoUrl = "https://www.youtube.com/watch?v=vY5N7Rbcjrc&list=WL&index=29&t=148s",
+                Tags = new string[]
+                {
+                    "crusaderKings"
+                }
             });
         dtoList.Add(
             new CreateVideoDto
@@ -255,19 +321,31 @@ public class VideosRepository : IVideosRepository
             new CreateVideoDto
             {
                 Category = (int)VideoCategory.Development,
-                VideoUrl = "https://www.youtube.com/watch?v=Lk-uVEVGxOA&list=WL&index=45"
+                VideoUrl = "https://www.youtube.com/watch?v=Lk-uVEVGxOA&list=WL&index=45",
+                Tags = new string[]
+                {
+                    "javascript", "node"
+                }
             });
         dtoList.Add(
             new CreateVideoDto
             {
                 Category = (int)VideoCategory.Cooking,
-                VideoUrl = "https://www.youtube.com/watch?v=5_NU8Fw5-g8&list=WL&index=53&t=680s"
+                VideoUrl = "https://www.youtube.com/watch?v=5_NU8Fw5-g8&list=WL&index=53&t=680s",
+                Tags = new string[]
+                {
+                    "noodles"
+                }
             });
         dtoList.Add(
             new CreateVideoDto
             {
                 Category = (int)VideoCategory.Cooking,
-                VideoUrl = "https://www.youtube.com/watch?v=eY1FF6SEggk&list=WL&index=56&t=444s"
+                VideoUrl = "https://www.youtube.com/watch?v=eY1FF6SEggk&list=WL&index=56&t=444s",
+                Tags = new string[]
+                {
+                    "rice"
+                }
             });
 
     }
