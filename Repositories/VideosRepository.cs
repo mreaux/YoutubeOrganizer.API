@@ -1,7 +1,9 @@
-﻿using MongoDB.Bson;
+﻿using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using YoutubeOrganizer.Dtos;
 using YoutubeOrganizer.Models;
+using YoutubeOrganizer.Settings;
 using YoutubeOrganizer.Utilities;
 
 namespace YoutubeOrganizer.Repositories;
@@ -10,17 +12,16 @@ public class VideosRepository : IVideosRepository
 {
     private readonly IMongoCollection<Video> _videosCollection;
 
-    private const string databaseName = "YoutubeOrganizer";
     private const string collectionName = "Videos";
-
 
     private readonly FilterDefinitionBuilder<Video> _filterBuilder = Builders<Video>.Filter;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<VideosRepository> _logger;
-    public VideosRepository(IMongoClient mongoClient, IHttpClientFactory httpClientFactory, ILogger<VideosRepository> logger)
+    public VideosRepository(IMongoClient mongoClient, IHttpClientFactory httpClientFactory, 
+        ILogger<VideosRepository> logger, IOptions<MongoDbSettings> options)
     {
         _logger = logger;
-        IMongoDatabase db = mongoClient.GetDatabase(databaseName);
+        IMongoDatabase db = mongoClient.GetDatabase(options.Value.Database);
         _logger.LogInformation("Connected to Mongo");
         _videosCollection = db.GetCollection<Video>(collectionName);
         _httpClientFactory = httpClientFactory;

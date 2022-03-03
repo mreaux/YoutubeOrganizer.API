@@ -36,6 +36,9 @@ IMapper mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
 // MongoDb setup
+// get password from secrets
+var myPassword = builder.Configuration["MongoDbPassword"];
+
 builder.Services.AddSingleton<IMongoClient>(serviceProvider =>
 {
     // serialize Guids and DateTimeOffsets as strings
@@ -43,8 +46,10 @@ builder.Services.AddSingleton<IMongoClient>(serviceProvider =>
     BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
 
     var settings = builder.Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
-    return new MongoClient(settings.ConnectionString);
+    return new MongoClient(settings.GetConnectionString(myPassword)); 
 });
+
+builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection(nameof(MongoDbSettings)));
 
 builder.Services.AddCors(options =>
 {

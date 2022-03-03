@@ -2,13 +2,12 @@
 public class MongoDbSettings
 {
     public string Host { get; init; }
-    public int Port { get; init; }
+    public string Database { get; init; }
+    public string UserName { get; init; }
 
-    public string ConnectionString
+    public string GetConnectionString(string password)
     {
-        get
-        {
-            return $"mongodb://{Host}:{Port}";
-        }
+        return
+            $"mongodb+srv://{UserName}:{password}@{Host}/{Database}?retryWrites=true&w=majority";
     }
 }
